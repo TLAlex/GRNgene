@@ -2,7 +2,8 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import numpy.typing as npt
-
+from scipy.stats import spearmanr, pearsonr
+from collections import Counter
 
 def findGroupGraph(adj_matrix: npt.ArrayLike) -> str:
     """
@@ -144,6 +145,46 @@ def issubgraphconnected(adj_matrice: npt.ArrayLike,
     - bool: True if the subgraph is connected, False otherwise.
     """
     return bool(adj_matrice[node][nodeEdgeA]) or bool(adj_matrice[node][nodeEdgeB])  # noqa: E501
+
+def get_all_motifs_count(sub_graph: dict) -> dict:
+    motifs = {}
+    motifs['Fan-In'] = 1
+    motifs['Fan-Out'] = 2
+    motifs['Cascade'] = 3
+    motifs['Mutual-Out'] = 4
+    motifs['Mutual-In'] = 5
+    motifs['FFL'] = 6
+    motifs['FBL'] = 7
+    motifs['Bi-Mutual'] = 8
+    motifs['Regulated-Mutual'] = 9
+    motifs['Regulating-Mutual'] = 10
+    motifs['Mutual-Cascade'] = 11
+    motifs['Semi-Clique'] = 12
+    motifs['Clique'] = 13
+
+    motif_counts = Counter(sub_graph.values())
+    all_motifs_count = {motif: motif_counts.get(motif, 0) for motif in motifs.keys()}
+    
+    return all_motifs_count
+
+def correlation_metrics(network1, network2):
+    network1_motifs = subgraph3N(network1)
+    network1_motifs_count = get_all_motifs_count(network1_motifs)
+
+    network2_motifs = subgraph3N(network2)
+    network2_motifs_count=get_all_motifs_count(network2_motifs)
+
+    # Ensure both have the same motif keys
+    all_motifs = set(network2_motifs_count.keys()).union(network1_motifs_count.keys())
+
+    motifs = sorted(all_motifs)
+    counts_network1 = [network1_motifs_count.get(m, 0) for m in motifs]
+    counts_network2 = [network2_motifs_count.get(m, 0) for m in motifs]
+
+    pearson_corr, pearson_p = spearmanr(counts_network1, counts_network2)
+
+    spearman_corr, spearman_p = pearsonr(counts_network1, counts_network2)
+    return pearson_corr, pearson_p, spearman_corr, spearman_p
 
 
 def main():

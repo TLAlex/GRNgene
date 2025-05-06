@@ -17,7 +17,7 @@ This package generates synthetic Gene Regulatory Networks (GRNs) and simulate th
 
 ### Prerequisite
 
-- Python 3.6+
+- Python 3.10+
 - `pip`
 
 ### Étapes d'installation
@@ -37,11 +37,3 @@ This package generates synthetic Gene Regulatory Networks (GRNs) and simulate th
     ```sh
     pip install .
     ```
-
-## Example
-
-Vous pouvez exécuter une simulation en utilisant le notebook d'exemple `exemple.ipynb` :
-
-```sh
-code exemple.ipynb
-```

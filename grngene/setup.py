@@ -19,7 +19,7 @@ setup(
     package_data={
         "GRNgene": ["ODESystems/41586_2011_BFnature10098_MOESM304_ESM.xls","GRN/41598_2021_3625_MOESM5_ESM.xlsx"],
     },
-    author='Alexandre Tan-Lhernould',
+    author='Alexandre Tan-Lhernould, Melvin Bonamour',
     author_email='tlalex@hotmail.fr',
     description="Parametric Generator of Synthetic Gene Networks and Expression Data",
     long_description=open('README.md').read(),

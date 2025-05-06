@@ -1,5 +1,4 @@
-from GRNCreationUtils import meanClustering, BarabasiAlbertAlgorithm
-from GRNCreationUtils import adjacenteDiMatriceStaredFromGraph, addColors
+from GRNCreationUtils import meanClustering, BarabasiAlbertAlgorithm, adjacenteDiMatriceStaredFromGraph, addColors, LFRAlgorithm
 from GRNgene.GRN.genesGroup import subgraph3N
 import networkx as nx
 import numpy as np
@@ -31,8 +30,11 @@ def randomGrn(genesNb: int,
     if resDict is None:
         resDict = {}
 
-    # Generate the initial graph using the Barabasi-Albert model
-    Graph = BarabasiAlbertAlgorithm(genesNb, 2)
+    # Generate the initial graph using the Barabasi-Albert model --Deprecated--
+    #Graph = BarabasiAlbertAlgorithm(genesNb, 2)
+
+    # Generate the initial graph using the LFR benchmark model
+    Graph = LFRAlgorithm(genesNb)
 
     # Store results in the provided or new dictionary
     Graph, M = adjacenteDiMatriceStaredFromGraph(Graph, autoRG, duoRG)
