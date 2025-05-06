@@ -7,6 +7,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from networkx.algorithms.community import greedy_modularity_communities, modularity
 from collections import Counter
+import random as rd
 
 def adj_mx_gnw_goldstandard(filepath: str) -> np.ndarray:
     """
@@ -155,41 +156,6 @@ def get_all_motifs_count(sub_graph: dict) -> dict:
     
     return all_motifs_count
 
-def get_all_motifs_count(sub_graph: dict) -> dict:
-    motifs = {}
-    motifs['Fan-In'] = 1
-    motifs['Fan-Out'] = 2
-    motifs['Cascade'] = 3
-    motifs['Mutual-Out'] = 4
-    motifs['Mutual-In'] = 5
-    motifs['FFL'] = 6
-    motifs['FBL'] = 7
-    motifs['Bi-Mutual'] = 8
-    motifs['Regulated-Mutual'] = 9
-    motifs['Regulating-Mutual'] = 10
-    motifs['Mutual-Cascade'] = 11
-    motifs['Semi-Clique'] = 12
-    motifs['Clique'] = 13
-
-    motif_counts = Counter(sub_graph.values())
-    all_motifs_count = {motif: motif_counts.get(motif, 0) for motif in motifs.keys()}
-    
-    return all_motifs_count
-
-# Plot the motifs count
-def plot_motifs_count(motifs_count):
-    motifs = list(motifs_count.keys())
-    counts = list(motifs_count.values())
-
-    plt.figure(figsize=(12, 6))
-    plt.bar(motifs, np.log(counts), color='skyblue')
-    plt.xlabel('Motif')
-    plt.ylabel('Count')
-    plt.title('Motif Count Distribution')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
 def plot_motifs_count(motifs_count, log=True):
     motifs = list(motifs_count.keys())
     counts = list(motifs_count.values())
@@ -205,3 +171,92 @@ def plot_motifs_count(motifs_count, log=True):
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
+# Connect components probabilistically by degree
+def connect_components_by_degree(G, hub_bias=1.0):
+    """
+    Connects disconnected components by adding edges between them.
+    Nodes are chosen with probability proportional to (degree ** hub_bias).
+    """
+    added_edges = 0
+    while not nx.is_connected(G):
+        components = list(nx.connected_components(G)) # generate connected components
+        compA, compB = components[0], components[1] # get the two first components
+
+        # Get the node degress for both components
+        degrees_A = np.array([G.degree(n) for n in compA])
+        degrees_B = np.array([G.degree(n) for n in compB])
+
+        # Amplify degree for hub preference
+        degrees_A = (degrees_A + 1e-3) ** hub_bias
+        degrees_B = (degrees_B + 1e-3) ** hub_bias
+
+        # Define the selection probabily of node withing each component
+        prob_A = degrees_A / degrees_A.sum()
+        prob_B = degrees_B / degrees_B.sum()
+
+        # Select the node for each component
+        nodeA = np.random.choice(list(compA), p=prob_A)
+        nodeB = np.random.choice(list(compB), p=prob_B)
+
+        # Connect the components with the node selected
+        G.add_edge(nodeA, nodeB)
+        added_edges += 1
+        print(f"Connected node {nodeA} (deg={G.degree(nodeA)}) with {nodeB} (deg={G.degree(nodeB)})")
+
+    print(f"Graph is now connected (added {added_edges} edges).")
+    return G
+
+def adjacenteDiMatriceStaredFromGraph(G: nx.Graph,
+                                      autoRG: float,
+                                      duoRG: float) -> nx.DiGraph:
+    """
+    Converts an undirected graph into a directed graph
+    using a 'star' strategy: the highest-degree node is treated as a hub,
+    and edges are oriented outward (with optional bidirectionality and self-loops).
+    """
+    DiG = nx.DiGraph()
+    DiG.add_nodes_from(G)
+
+    # Find the hub node (highest degree)
+    degree_dict = dict(G.degree())
+    motherNode = max(degree_dict, key=degree_dict.get)
+    print(f"Hub node selected for directionality: {motherNode}")
+
+    # Compute node distances from motherNode
+    cache = set()
+    distance = nx.single_source_shortest_path_length(G, motherNode)
+
+    # Assign direction
+    for nodeA in distance:
+        for nodeB in G[nodeA]:
+            edge = (nodeA, nodeB)
+            if edge not in cache: # Prevent going through the edge multiple times
+                cache.add(edge)
+                cache.add(edge[::-1])
+                rdNumber = rd.random()
+                if rdNumber < duoRG: # Check if we add a bidirected edge depending on probability duoRG
+                    DiG.add_edges_from([(nodeA, nodeB), (nodeB, nodeA)])
+                else:
+                    if distance[nodeA] <= distance[nodeB]:
+                        DiG.add_edge(nodeA, nodeB)
+                    else:
+                        DiG.add_edge(nodeB, nodeA)
+        if rd.random() < autoRG: # Check if we add an autoregulation edge depending on probability autoRG
+            DiG.add_edge(nodeA, nodeA)
+
+    return DiG
+
+# Retry loop for LFR benchmark generation
+def safe_LFR_benchmark(max_retries=10, **kwargs):
+    attempt = 0
+    while True:
+        try:
+            attempt += 1
+            G = nx.generators.community.LFR_benchmark_graph(**kwargs)
+            print(f"Successfully generated LFR graph on attempt {attempt}.")
+            return G, attempt
+        except nx.ExceededMaxIterations:
+            print(f"Generation failed on attempt {attempt}, retrying...")
+            if attempt >= max_retries:
+                raise RuntimeError(f"Exceeded max retries ({max_retries}). LFR generation failed.")
