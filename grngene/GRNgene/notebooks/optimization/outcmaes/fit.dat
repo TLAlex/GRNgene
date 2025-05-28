@@ -1,3 +1,3 @@
-% # columns="iteration, evaluation, sigma, axis ratio, bestever, best, median, worst objective function value, interquartile range, further/more values", seed=1001284, Thu May 22 16:47:36 2025, <python>{}</python>
-1 9 0.28856335667157135 1.0000416675347343 32400.815066088166 3.2400815066088166e+04 915849.7518388713 inf inf   
-2 18 0.31477797450153816 1.2310670134371502 32400.815066088166 1.4899722703101195e+05 436922.3215997903 3059002.3701004 728593.839647783   
+% # columns="iteration, evaluation, sigma, axis ratio, bestever, best, median, worst objective function value, interquartile range, further/more values", seed=606852, Wed May 28 15:51:03 2025, <python>{}</python>
+1 9 0.24600291026339255 1.0000416675347343 inf inf inf inf nan   
+2 18 0.20828385900240534 1.1736085736735204 inf inf inf inf nan   

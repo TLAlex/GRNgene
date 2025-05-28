@@ -4,6 +4,7 @@ networkx
 matplotlib
 pandas
 scipy
+openpyxl
 
 [dev]
 pytest

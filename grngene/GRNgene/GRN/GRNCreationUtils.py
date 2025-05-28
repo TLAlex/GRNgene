@@ -64,7 +64,8 @@ def LFRAlgorithm(
     max_retries: int = 20,
     seed: int = None,
     connect_components: bool = True,
-    hub_bias: float = 3.0
+    hub_bias: float = 3.0,
+    verbose=False
 ) -> nx.Graph:
     """
     Generate a graph using the LFR benchmark model, ensuring it is connected
@@ -130,19 +131,19 @@ def LFRAlgorithm(
 
             # Optionally connect components
             if connect_components and not nx.is_connected(G):
-                print("Graph is disconnected. Connecting components...")
-                G = connect_components_by_degree(G, hub_bias=hub_bias)
-
-            print(f"Successfully generated LFR graph on attempt {attempt}.")
+                if verbose:
+                    print("Graph is disconnected. Connecting components...")
+                G = connect_components_by_degree(G, hub_bias=hub_bias, verbose)
+            if verbose:
+                print(f"Successfully generated LFR graph on attempt {attempt}.")
             return G
-
         except nx.ExceededMaxIterations:
             print(f"Generation failed on attempt {attempt}, retrying...")
 
         if attempt >= max_retries:
             raise RuntimeError(f"Exceeded max retries ({max_retries}). LFR generation failed.")
 
-def connect_components_by_degree(G, hub_bias=3.0):
+def connect_components_by_degree(G, hub_bias=3.0, verbose=False):
     """
     Connect disconnected components in a graph by adding edges between them.
 
@@ -196,9 +197,10 @@ def connect_components_by_degree(G, hub_bias=3.0):
         # Add edge to connect components
         G.add_edge(nodeA, nodeB)
         added_edges += 1
-        print(f"Connected node {nodeA} (deg={G.degree(nodeA)}) with {nodeB} (deg={G.degree(nodeB)})")
-
-    print(f"Graph is now connected (added {added_edges} edges).")
+        if verbose:
+            print(f"Connected node {nodeA} (deg={G.degree(nodeA)}) with {nodeB} (deg={G.degree(nodeB)})")
+    if verbose:
+        print(f"Graph is now connected (added {added_edges} edges).")
     return G
 
 
