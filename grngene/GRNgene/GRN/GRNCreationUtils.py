@@ -133,7 +133,7 @@ def LFRAlgorithm(
             if connect_components and not nx.is_connected(G):
                 if verbose:
                     print("Graph is disconnected. Connecting components...")
-                G = connect_components_by_degree(G, hub_bias=hub_bias, verbose)
+                G = connect_components_by_degree(G, hub_bias=hub_bias, verbose=False) # hard coded verbose to prevent error
             if verbose:
                 print(f"Successfully generated LFR graph on attempt {attempt}.")
             return G
@@ -407,59 +407,6 @@ def adj_mx_binary(adj_mx):
     binary_adj_mx[binary_adj_mx != 0] = 1.0
     return binary_adj_mx
 
-def connect_components_by_degree(G, hub_bias=3.0):
-    """
-    Connect disconnected components by adding edges between them, favoring hubs.
-
-    Parameters
-    ----------
-    G : nx.Graph
-        An undirected NetworkX graph. The graph may be disconnected.
-    
-    hub_bias : float, optional (default=3.0)
-        Bias factor to favor connecting nodes with higher degrees.
-        Nodes are selected with probability proportional to (degree ** hub_bias).
-
-    Returns
-    -------
-    nx.Graph
-        The same graph, now fully connected (modified in-place).
-
-    Notes
-    -----
-    - The function modifies the input graph by adding edges until it becomes connected.
-    - Components are connected iteratively by selecting nodes from different components
-      with probability proportional to (degree ** hub_bias).
-    - Requires an undirected graph; use `G.to_undirected()` if starting from a DiGraph.
-    """
-    added_edges = 0
-    while not nx.is_connected(G):
-        components = list(nx.connected_components(G))
-        compA, compB = components[0], components[1]  # keep original logic
-
-        # Get the node degrees for both components
-        degrees_A = np.array([G.degree(n) for n in compA])
-        degrees_B = np.array([G.degree(n) for n in compB])
-
-        # Amplify degrees for hub preference
-        degrees_A = (degrees_A + 1e-3) ** hub_bias
-        degrees_B = (degrees_B + 1e-3) ** hub_bias
-
-        # Define the selection probability of nodes within each component
-        prob_A = degrees_A / degrees_A.sum()
-        prob_B = degrees_B / degrees_B.sum()
-
-        # Select the node for each component
-        nodeA = np.random.choice(list(compA), p=prob_A)
-        nodeB = np.random.choice(list(compB), p=prob_B)
-
-        # Connect the components with the selected nodes
-        G.add_edge(nodeA, nodeB)
-        added_edges += 1
-        print(f"Connected node {nodeA} (deg={G.degree(nodeA)}) with {nodeB} (deg={G.degree(nodeB)})")
-
-    print(f"Graph is now connected (added {added_edges} edges).")
-    return G
 
 def network_properties(G):
     """
