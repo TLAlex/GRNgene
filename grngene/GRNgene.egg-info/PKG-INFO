@@ -3,7 +3,7 @@ Name: GRNgene
 Version: 0.1.0
 Summary: Parametric Generator of Synthetic Gene Networks and Expression Data
 Home-page: https://github.com/TLAlex/GRNgene
-Author: Alexandre Tan-Lhernould
+Author: Alexandre Tan-Lhernould, Melvin Bonamour
 Author-email: tlalex@hotmail.fr
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
@@ -16,6 +16,7 @@ Requires-Dist: networkx
 Requires-Dist: matplotlib
 Requires-Dist: pandas
 Requires-Dist: scipy
+Requires-Dist: openpyxl
 Provides-Extra: dev
 Requires-Dist: pytest; extra == "dev"
 
@@ -23,7 +24,7 @@ Requires-Dist: pytest; extra == "dev"
 
 Parametric Generator of Synthetic Gene Networks and Expression Data
 
-## Table des MatiÃ¨res
+## Table des Matières
 
 - [Introduction](#introduction)
 - [Installation](#installation)
@@ -38,18 +39,18 @@ This package generates synthetic Gene Regulatory Networks (GRNs) and simulate th
 
 ### Prerequisite
 
-- Python 3.6+
+- Python 3.10+
 - `pip`
 
-### Ã‰tapes d'installation
+### Étapes d'installation
 
-1. Clonez le dÃ©pÃ´t :
+1. Clonez le dépôt :
     ```sh
     git clone https://github.com/TLAlex/GRNgene
     cd GRNgene
     ```
 
-2. Installez les dÃ©pendances :
+2. Installez les dépendances :
     ```sh
     pip install -r requirements.txt
     ```
@@ -58,11 +59,3 @@ This package generates synthetic Gene Regulatory Networks (GRNs) and simulate th
     ```sh
     pip install .
     ```
-
-## Example
-
-Vous pouvez exÃ©cuter une simulation en utilisant le notebook d'exemple `exemple.ipynb` :
-
-```sh
-code exemple.ipynb
-```

@@ -23,5 +23,3 @@ GRNgene/ODESystems/massAction.py
 GRNgene/ODESystems/noise.py
 GRNgene/Plot/__init__.py
 GRNgene/Plot/plot.py
-grngene/GRN/41598_2021_3625_MOESM5_ESM.xlsx
-grngene/ODESystems/41586_2011_BFnature10098_MOESM304_ESM.xls
